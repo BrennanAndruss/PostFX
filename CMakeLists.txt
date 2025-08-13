@@ -7,6 +7,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 # Handle dependencies
+add_subdirectory(ext/glfw)
+add_subdirectory(ext/glm)
 find_package(OpenGL REQUIRED)
 
 # Get list of all source files
@@ -31,6 +33,7 @@ add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS} ${RESOURCES})
 
 # Link libraries for the project
 target_link_libraries(${PROJECT_NAME} PRIVATE
+	glfw
+	glm
 	${OPENGL_LIBRARIES}
 )
-
