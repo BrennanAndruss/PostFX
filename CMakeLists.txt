@@ -14,6 +14,7 @@ find_package(OpenGL REQUIRED)
 # Get list of all source files
 file(GLOB_RECURSE SOURCES
 	"${CMAKE_SOURCE_DIR}/src/*.cpp"
+	"${CMAKE_SOURCE_DIR}/src/*/*.cpp"
 	"${CMAKE_SOURCE_DIR}/ext/glad/src/*.c"
 )
 
