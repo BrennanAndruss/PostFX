@@ -1,8 +1,11 @@
 #include "Application.h"
 
 #include <iostream>
+#include <memory>
 
-Application::Application() : _windowManager(nullptr), _screenWidth(640), _screenHeight(480) {}
+#include "../Renderer/ForwardRenderPass.h"
+
+Application::Application() : _windowManager(nullptr), _fbWidth(640), _fbHeight(480) {}
 
 Application::~Application() 
 {
@@ -12,29 +15,29 @@ Application::~Application()
 void Application::init(int screenWidth, int screenHeight)
 {
 	// Set screen dimensions
-	_screenWidth = screenWidth;
-	_screenHeight = screenHeight;
+	_fbWidth = screenWidth;
+	_fbHeight = screenHeight;
 
 	// Initialize WindowManager
 	_windowManager = WindowManager::getInstance();
-	_windowManager->init(_screenWidth, _screenHeight);
+	_windowManager->init(_fbWidth, _fbHeight);
 	_windowManager->setEventCallbacks(this);
 
-	// Set background color
-	glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
+	// Initialize resources
+	_resourceManager = ResourceManager::getInstance();
+	_resourceManager->setResourceDir("../../../resources/");
+	_resourceManager->loadShader("simple", "shaders/simple.vert", "shaders/simple.frag");
+
+	// Initialize render pipeline
+	_renderPipeline.addRenderPass(std::make_unique<ForwardRenderPass>());
+
+	glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 }
 
 void Application::run()
 {
-	// Get current framebuffer size
-	int fbWidth, fbHeight;
-	glfwGetFramebufferSize(_windowManager->getHandle(), &fbWidth, &fbHeight);
-	glViewport(0, 0, fbWidth, fbHeight);
-
-	// Clear framebuffer
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	// Render scene...
+	// Render scene
+	_renderPipeline.render();
 
 	// Swap front and back buffers
 	glfwSwapBuffers(_windowManager->getHandle());
@@ -64,8 +67,11 @@ void Application::mouseButtonCallback(GLFWwindow* window, int button, int action
 void Application::resizeCallback(GLFWwindow* window, int width, int height)
 {
 	glViewport(0, 0, width, height);
-	_screenWidth = width;
-	_screenHeight = height;
+	if (width != _fbWidth || height != _fbHeight)
+	{
+		_fbWidth = width;
+		_fbHeight = height;
+	}
 }
 
 void Application::mouseCallback(GLFWwindow* window, double xPos, double yPos)

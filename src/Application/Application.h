@@ -3,6 +3,8 @@
 #include <glad/glad.h>
 
 #include "WindowManager.h"
+#include "ResourceManager.h"
+#include "../Renderer/RenderPipeline.h"
 
 class Application : public EventCallbacks
 {
@@ -22,7 +24,10 @@ public:
 
 private:
 	WindowManager* _windowManager = nullptr;
+	ResourceManager* _resourceManager = nullptr;
 
-	int _screenWidth;
-	int _screenHeight;
+	RenderPipeline _renderPipeline;
+
+	int _fbWidth;
+	int _fbHeight;
 };
