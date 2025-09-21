@@ -2,7 +2,7 @@ cmake_minimum_required(VERSION 3.10)
 project(PostFX)
 
 # Set the C++ standard
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
@@ -15,6 +15,7 @@ find_package(OpenGL REQUIRED)
 file(GLOB_RECURSE SOURCES
 	"${CMAKE_SOURCE_DIR}/src/*.cpp"
 	"${CMAKE_SOURCE_DIR}/src/*/*.cpp"
+	"${CMAKE_SOURCE_DIR}/ext/implementations.cpp"
 	"${CMAKE_SOURCE_DIR}/ext/glad/src/*.c"
 )
 
