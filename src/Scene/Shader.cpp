@@ -77,12 +77,12 @@ GLuint Shader::getPid() const
 	return _pid;
 }
 
-void Shader::bind()
+void Shader::bind() const
 {
 	glUseProgram(_pid);
 }
 
-void Shader::unbind()
+void Shader::unbind() const
 {
 	glUseProgram(0);
 }
@@ -97,32 +97,32 @@ void Shader::setFloat(const char* name, float value) const
 	glUniform1f(glGetUniformLocation(_pid, name), value);
 }
 
-void Shader::setVec2(const char* name, glm::vec2& value) const
+void Shader::setVec2(const char* name, const glm::vec2& value) const
 {
 	glUniform2fv(glGetUniformLocation(_pid, name), 1, &value[0]);
 }
 
-void Shader::setVec3(const char* name, glm::vec3& value) const
+void Shader::setVec3(const char* name, const glm::vec3& value) const
 {
 	glUniform3fv(glGetUniformLocation(_pid, name), 1, &value[0]);
 }
 
-void Shader::setVec4(const char* name, glm::vec4& value) const
+void Shader::setVec4(const char* name, const glm::vec4& value) const
 {
 	glUniform4fv(glGetUniformLocation(_pid, name), 1, &value[0]);
 }
 
-void Shader::setMat2(const char* name, glm::mat2& value) const
+void Shader::setMat2(const char* name, const glm::mat2& value) const
 {
 	glUniformMatrix2fv(glGetUniformLocation(_pid, name), 1, GL_FALSE, &value[0][0]);
 }
 
-void Shader::setMat3(const char* name, glm::mat3& value) const
+void Shader::setMat3(const char* name, const glm::mat3& value) const
 {
 	glUniformMatrix3fv(glGetUniformLocation(_pid, name), 1, GL_FALSE, &value[0][0]);
 }
 
-void Shader::setMat4(const char* name, glm::mat4& value) const
+void Shader::setMat4(const char* name, const glm::mat4& value) const
 {
 	glUniformMatrix4fv(glGetUniformLocation(_pid, name), 1, GL_FALSE, &value[0][0]);
 }
