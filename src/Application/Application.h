@@ -5,6 +5,7 @@
 #include "WindowManager.h"
 #include "ResourceManager.h"
 #include "../Renderer/RenderPipeline.h"
+#include "../Scene/Scene.h"
 
 class Application : public EventCallbacks
 {
@@ -27,6 +28,7 @@ private:
 	ResourceManager* _resourceManager = nullptr;
 
 	RenderPipeline _renderPipeline;
+	Scene _scene;
 
 	int _fbWidth;
 	int _fbHeight;

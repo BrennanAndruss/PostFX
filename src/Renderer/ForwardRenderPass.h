@@ -10,12 +10,13 @@ class ForwardRenderPass : public RenderPass
 {
 public:
 	void init() override;
-	void execute() override;
+	void execute(const std::vector<std::shared_ptr<Object>>& objects) override;
 
 private:
 	ResourceManager* _resourceManager = nullptr;
 
-	Shader _shader;
+	std::shared_ptr<Shader> _shader;
+	Mesh _mesh;
 
 	std::vector<float> _vertices;
 	GLuint _VAO, _VBO;
