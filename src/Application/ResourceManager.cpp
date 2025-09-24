@@ -3,6 +3,7 @@
 #include <iostream>
 #include <sstream>
 #include <fstream>
+#include "../../ext/stb_image/stb_image.h"
 
 std::string readFile(const std::string& filePath)
 {
@@ -50,10 +51,31 @@ size_t ResourceManager::loadShader(const std::string& name, const std::string& v
 	
 	auto shader = std::make_shared<Shader>();
 	shader->init(vertSource.c_str(), fragSource.c_str());
-	_shaders.push_back(std::move(shader));
+	_shaders.push_back(shader);
 
 	size_t id = _shaders.size() - 1;
 	_shaderIDs[name] = id;
+	return id;
+}
+
+size_t ResourceManager::loadTexture(const std::string& name, const std::string& texturePath, bool alpha)
+{
+	// Load image data
+	int width, height, nrChannels;
+	unsigned char* textureData = stbi_load((_resourceDir + texturePath).c_str(), &width, &height, &nrChannels, 0);
+
+	auto texture = std::make_shared<Texture>(width, height, alpha);
+	bool success = texture->init(textureData);
+	if (!success)
+	{
+		std::cerr << "Failed to initialize texture: " << texturePath << std::endl;
+		return -1;
+	}
+	stbi_image_free(textureData);
+	_textures.push_back(texture);
+
+	size_t id = _textures.size() - 1;
+	_textureIDs[name] = id;
 	return id;
 }
 
@@ -103,6 +125,20 @@ std::shared_ptr<Shader> ResourceManager::getShader(size_t id) const
 std::shared_ptr<Shader> ResourceManager::getShader(const std::string& name) const
 {
 	return getShader(_shaderIDs.at(name));
+}
+
+std::shared_ptr<Texture> ResourceManager::getTexture(size_t id) const
+{
+	if (id >= _textures.size())
+	{
+		throw std::out_of_range("Texture ID out of range");
+	}
+	return _textures[id];
+}
+
+std::shared_ptr<Texture> ResourceManager::getTexture(const std::string& name) const
+{
+	return getTexture(_textureIDs.at(name));
 }
 
 std::shared_ptr<Mesh> ResourceManager::getMesh(size_t id) const

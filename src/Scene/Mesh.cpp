@@ -53,7 +53,7 @@ void Mesh::init(const tinyobj::shape_t& shape)
 	_numIndices = shape.mesh.indices.size();
 	glGenBuffers(1, &_eboID);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, _eboID);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, _numIndices * sizeof(size_t), shape.mesh.indices.data(), GL_STATIC_DRAW);
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, _numIndices * sizeof(unsigned int), shape.mesh.indices.data(), GL_STATIC_DRAW);
 
 	glBindVertexArray(0);
 
