@@ -19,6 +19,5 @@ void Material::bindTexture(std::shared_ptr<Shader> shader) const
 		
 	// Get the handle for the texture uniform
 	GLint handle = glGetUniformLocation(shader->getPid(), "Texture0");
-	std::cout << "handle: " << handle << std::endl;
 	texture->bind(handle);
 }

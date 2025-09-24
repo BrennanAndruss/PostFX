@@ -1,7 +1,7 @@
 #include "Camera.h"
 
 Camera::Camera(const glm::vec3& position, float aspect) : _position(position), _velocity(), 
-	_acceleration(1.0f), _pitch(0.0f), _yaw(0.0f), _fov(45.0f), _aspect(aspect), 
+	_acceleration(5.0f), _pitch(0.0f), _yaw(0.0f), _fov(45.0f), _aspect(aspect), 
 	_near(0.01f), _far(100.0f) 
 {
 	updateCameraVectors();
@@ -33,24 +33,25 @@ void Camera::updatePosition(glm::vec3 direction, float deltaTime)
 	{
 		// Convert move direction to camera space
 		direction = direction.x * _right + direction.y * _up + direction.z * _forward;
-
-		// Normalize move direction
 		direction = glm::normalize(direction);
 
+		// Accelerate
 		_velocity += direction * _acceleration * deltaTime;
 	}
+
+	// Apply drag independent of framerate
+	_velocity *= powf(0.95f, deltaTime * 60.0f);
 	
-	// Update position and dampen velocity
+	// Integrate position
 	_position += _velocity * deltaTime;
-	_velocity *= 0.9f;
 
 	updateViewMatrix();
 }
 
-void Camera::updateRotation(float xOffset, float yOffset)
+void Camera::updateRotation(glm::vec2 direction)
 {
-	_yaw += xOffset;
-	_pitch += yOffset;
+	_yaw += direction.x;
+	_pitch += direction.y;
 
 	// Constrain pitch to avoid gimbal lock
 	if (_pitch > 89.0f)
@@ -60,6 +61,12 @@ void Camera::updateRotation(float xOffset, float yOffset)
 
 	updateCameraVectors();
 	updateViewMatrix();
+}
+
+void Camera::updateAspect(float aspect)
+{
+	_aspect = aspect;
+	updateProjectionMatrix();
 }
 
 void Camera::updateCameraVectors()

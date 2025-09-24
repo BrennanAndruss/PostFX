@@ -20,7 +20,8 @@ public:
 	void setPerspective(float fov, float aspect, float near, float far);
 
 	void updatePosition(glm::vec3 direction, float deltaTime);
-	void updateRotation(float xOffset, float yOffset);
+	void updateRotation(glm::vec2 direction);
+	void updateAspect(float aspect);
 
 	const glm::mat4& getViewMatrix() const { return _view; }
 	const glm::mat4& getProjectionMatrix() const { return _projection; }

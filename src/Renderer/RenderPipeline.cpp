@@ -13,7 +13,7 @@ void RenderPipeline::init(const Scene& scene, int width, int height)
 	_cameraUBO.init(sizeof(CameraUBO), 0);
 	updateCameraUBO(*camera);
 	_lightsUBO.init(sizeof(glm::vec3), 1);
-	updateLightsUBO(glm::vec3(0.0f, -1.0f, 0.0f));
+	updateLightsUBO(glm::vec3(0.8f, -1.0f, 0.6f));
 }
 
 void RenderPipeline::resize(int width, int height)

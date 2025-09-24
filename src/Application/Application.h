@@ -29,6 +29,12 @@ private:
 
 	RenderPipeline _renderPipeline;
 	Scene _scene;
+	std::shared_ptr<Camera> _camera;
+
+	glm::vec3 _translateInput;
+	glm::vec2 _rotateInput;
+	bool _mouseTrapped;
+	bool _firstMouse;
 
 	int _fbWidth;
 	int _fbHeight;

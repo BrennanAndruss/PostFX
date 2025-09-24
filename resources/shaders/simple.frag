@@ -46,4 +46,6 @@ void main()
 
 	// debug
 	// fragColor = vec4(1.0, 0.0, 0.0, 1.0);
+	// fragColor = vec4(normalize(fragNor) * 0.5 + 0.5, 1.0);
+	// fragColor = vec4(vec3(dC), 1.0);
 }

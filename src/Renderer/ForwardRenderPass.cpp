@@ -26,7 +26,7 @@ void ForwardRenderPass::init()
 
 void ForwardRenderPass::execute(const std::vector<std::shared_ptr<Object>>& objects)
 {
-	_shader->bind();
+	// _shader->bind();
 
 	//GLint currentProgram = 0;
 	//glGetIntegerv(GL_CURRENT_PROGRAM, &currentProgram);
@@ -37,9 +37,17 @@ void ForwardRenderPass::execute(const std::vector<std::shared_ptr<Object>>& obje
 
 	for (auto object : objects)
 	{
-		object->material->setUniforms(_shader);
+		std::shared_ptr<Shader> objShader = object->material->shader;
+		objShader->bind();
+
+		object->material->setUniforms(objShader);
+		objShader->setMat4("model", object->transform.getCompositeTransform());
+		object->material->bindTexture(objShader);
+
 		object->draw();
+
+		objShader->unbind();
 	}
 
-	_shader->unbind();
+	// _shader->unbind();
 }
