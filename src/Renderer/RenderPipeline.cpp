@@ -2,6 +2,7 @@
 
 #include <glfw/glfw3.h>
 #include "../Scene/Camera.h"
+#include "../Scene/Light.h"
 
 void RenderPipeline::init(const Scene& scene, int width, int height)
 {
@@ -12,8 +13,10 @@ void RenderPipeline::init(const Scene& scene, int width, int height)
 	std::shared_ptr<Camera> camera = scene.getCamera();
 	_cameraUBO.init(sizeof(CameraUBO), 0);
 	updateCameraUBO(*camera);
-	_lightsUBO.init(sizeof(glm::vec3), 1);
-	updateLightsUBO(glm::vec3(0.8f, -1.0f, 0.6f));
+
+	std::vector<std::shared_ptr<Light>> lights = scene.getLights();
+	_lightsUBO.init(sizeof(LightUBO), lights.size());
+	updateLightsUBO(lights);
 }
 
 void RenderPipeline::resize(int width, int height)
@@ -42,10 +45,9 @@ void RenderPipeline::render(const Scene& scene)
 	updateCameraUBO(*camera);
 
 	// Execute render passes
-	std::vector<std::shared_ptr<Object>> objects = scene.getObjects();
 	for (const auto& pass : _renderPasses)
 	{
-		pass->execute(objects);
+		pass->execute(scene);
 	}
 }
 
@@ -60,7 +62,15 @@ void RenderPipeline::updateCameraUBO(const Camera& camera)
 	_cameraUBO.update(&cameraData, sizeof(CameraUBO));
 }
 
-void RenderPipeline::updateLightsUBO(const glm::vec3& lightDir)
+void RenderPipeline::updateLightsUBO(const std::vector<std::shared_ptr<Light>>& lights)
 {
-	_lightsUBO.update(&lightDir, sizeof(glm::vec3));
+	std::vector<LightUBO> lightData;
+	lightData.reserve(lights.size());
+	for (const auto& light : lights)
+	{
+		LightUBO ubo;
+		light->toUBO(ubo);
+		lightData.push_back(ubo);
+	}
+	_lightsUBO.update(lightData.data(), lightData.size() * sizeof(LightUBO));
 }

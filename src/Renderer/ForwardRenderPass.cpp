@@ -5,35 +5,12 @@ void ForwardRenderPass::init()
 {
 	_resourceManager = ResourceManager::getInstance();
 	_shader = _resourceManager->getShader("simple");
-
-	//// Test triangle data
-	//_vertices = {
-	//-0.5f, -0.5f, 0.0f,
-	// 0.5f, -0.5f, 0.0f,
-	// 0.0f,  0.5f, 0.0f
-	//};
-
-	//glGenVertexArrays(1, &_VAO);
-	//glGenBuffers(1, &_VBO);
-
-	//glBindVertexArray(_VAO);
-	//glBindBuffer(GL_ARRAY_BUFFER, _VBO);
-	//glBufferData(GL_ARRAY_BUFFER, sizeof(_vertices), _vertices.data(), GL_STATIC_DRAW);
-
-	//glEnableVertexAttribArray(0);
-	//glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 }
 
-void ForwardRenderPass::execute(const std::vector<std::shared_ptr<Object>>& objects)
+void ForwardRenderPass::execute(const Scene& scene)
 {
-	// _shader->bind();
-
-	//GLint currentProgram = 0;
-	//glGetIntegerv(GL_CURRENT_PROGRAM, &currentProgram);
-	//std::cout << "Program in use at draw: " << currentProgram << std::endl;
-
-	//glBindVertexArray(_VAO);
-	//glDrawArrays(GL_TRIANGLES, 0, 3);
+	auto objects = scene.getObjects();
+	int numLights = scene.getLights().size();
 
 	for (auto object : objects)
 	{
@@ -42,12 +19,11 @@ void ForwardRenderPass::execute(const std::vector<std::shared_ptr<Object>>& obje
 
 		object->material->setUniforms(objShader);
 		objShader->setMat4("model", object->transform.getCompositeTransform());
+		objShader->setInt("numLights", numLights);
 		object->material->bindTexture(objShader);
 
 		object->draw();
 
 		objShader->unbind();
 	}
-
-	// _shader->unbind();
 }

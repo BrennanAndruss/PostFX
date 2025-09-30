@@ -28,6 +28,5 @@ private:
 	UniformBuffer _lightsUBO;
 
 	void updateCameraUBO(const Camera& camera);
-	void updateLightsUBO(const glm::vec3& lightDir);
-	// void updateLightsUBO(const std::vector<Light>& lights);
+	void updateLightsUBO(const std::vector<std::shared_ptr<Light>>& lights);
 };

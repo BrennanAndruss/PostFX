@@ -1,7 +1,7 @@
 #include "Camera.h"
 
 Camera::Camera(const glm::vec3& position, float aspect) : _position(position), _velocity(), 
-	_acceleration(5.0f), _pitch(0.0f), _yaw(0.0f), _fov(45.0f), _aspect(aspect), 
+	_acceleration(15.0f), _pitch(0.0f), _yaw(0.0f), _fov(45.0f), _aspect(aspect), 
 	_near(0.01f), _far(100.0f) 
 {
 	updateCameraVectors();
@@ -40,7 +40,7 @@ void Camera::updatePosition(glm::vec3 direction, float deltaTime)
 	}
 
 	// Apply drag independent of framerate
-	_velocity *= powf(0.95f, deltaTime * 60.0f);
+	_velocity *= powf(0.98f, deltaTime * 60.0f);
 	
 	// Integrate position
 	_position += _velocity * deltaTime;

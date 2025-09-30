@@ -10,7 +10,7 @@ class ForwardRenderPass : public RenderPass
 {
 public:
 	void init() override;
-	void execute(const std::vector<std::shared_ptr<Object>>& objects) override;
+	void execute(const Scene& scene) override;
 
 private:
 	ResourceManager* _resourceManager = nullptr;

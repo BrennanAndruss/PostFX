@@ -36,22 +36,33 @@ void Application::init(int screenWidth, int screenHeight)
 
 	size_t texID = _resourceManager->loadTexture("texture", "textures/labonetex.jpg", false);
 
-	size_t cubeID = _resourceManager->loadMesh("cube", "models/cube.obj");
-	std::shared_ptr<Mesh> cubeMesh = _resourceManager->getMesh(cubeID);
-	size_t planeID = _resourceManager->loadMesh("plane", "models/plane.obj");
-	std::shared_ptr<Mesh> planeMesh = _resourceManager->getMesh(planeID);
-	size_t armadilloID = _resourceManager->loadMesh("armadillo", "models/Armadillo.obj");
-	std::shared_ptr<Mesh> armadilloMesh = _resourceManager->getMesh(armadilloID);
+	std::cout << "Loading models...\n";
+	size_t meshID = _resourceManager->loadMesh("cube", "models/cube.obj");
+	std::shared_ptr<Mesh> cubeMesh = _resourceManager->getMesh(meshID);
+	meshID = _resourceManager->loadMesh("plane", "models/plane.obj");
+	std::shared_ptr<Mesh> planeMesh = _resourceManager->getMesh(meshID);
+	meshID = _resourceManager->loadMesh("armadillo", "models/Armadillo.obj");
+	std::shared_ptr<Mesh> armadilloMesh = _resourceManager->getMesh(meshID);
+	meshID = _resourceManager->loadMesh("dragon", "models/dragon_vrip_res3.obj");
+	std::shared_ptr<Mesh> dragonMesh = _resourceManager->getMesh(meshID);
+	std::cout << "Models loaded.\n";
 
-	size_t matID = _resourceManager->loadMaterial("simple", "simple");
-	std::shared_ptr<Material> material = _resourceManager->getMaterial(matID);
-	material->ambient = glm::vec3(0.2f, 0.0f, 0.0f);
-	material->diffuse = glm::vec3(0.8f, 0.0f, 0.0f);
-	material->specular = glm::vec3(1.0f, 1.0f, 1.0f);
-	material->shininess = 32.0f;
+	size_t matID = _resourceManager->loadMaterial("redMat", "simple");
+	std::shared_ptr<Material> redMat = _resourceManager->getMaterial(matID);
+	redMat->ambient = glm::vec3(0.2f, 0.0f, 0.0f);
+	redMat->diffuse = glm::vec3(0.8f, 0.0f, 0.0f);
+	redMat->specular = glm::vec3(1.0f, 1.0f, 1.0f);
+	redMat->shininess = 32.0f;
 
-	size_t texMatID = _resourceManager->loadMaterial("texture", "texture");
-	std::shared_ptr<Material> texMaterial = _resourceManager->getMaterial(texMatID);
+	matID = _resourceManager->loadMaterial("greenMat", "simple");
+	std::shared_ptr<Material> greenMat = _resourceManager->getMaterial(matID);
+	greenMat->ambient = glm::vec3(0.0f, 0.2f, 0.0f);
+	greenMat->diffuse = glm::vec3(0.0f, 0.8f, 0.0f);
+	greenMat->specular = glm::vec3(1.0f, 1.0f, 1.0f);
+	greenMat->shininess = 32.0f;
+
+	matID = _resourceManager->loadMaterial("texture", "texture");
+	std::shared_ptr<Material> texMaterial = _resourceManager->getMaterial(matID);
 	texMaterial->texture = _resourceManager->getTexture("texture");
 
 	// Initialize the scene
@@ -59,16 +70,24 @@ void Application::init(int screenWidth, int screenHeight)
 	_camera = std::make_shared<Camera>(glm::vec3(-5.0f, 0.0f, 0.0f), aspect);
 	_scene.setCamera(_camera);
 
+	auto dirLight = std::make_shared<DirectionalLight>(glm::vec3(0.8f, -1.0f, 0.6f), glm::vec3(0.0f, 0.0f, 1.0f), 1.0f);
+	_scene.addLight(dirLight);
+
 	auto plane = std::make_shared<Object>(planeMesh, texMaterial);
 	plane->transform.translation = glm::vec3(0.0f, -1.0f, 0.0f);
 	plane->transform.scale = glm::vec3(10.0f, 1.0f, 10.0f);
 	_scene.addObject(plane);
 	
-	auto armadillo = std::make_shared<Object>(armadilloMesh, material);
-	armadillo->transform.scale = glm::vec3(0.025f);
+	auto armadillo = std::make_shared<Object>(armadilloMesh, greenMat);
+	armadillo->transform.scale = glm::vec3(0.020f);
 	_scene.addObject(armadillo);
 
-	auto cube2 = std::make_shared<Object>(cubeMesh, material);
+	auto dragon = std::make_shared<Object>(dragonMesh, redMat);
+	dragon->transform.translation = glm::vec3(0.0f, 0.0f, -5.0f);
+	dragon->transform.scale = glm::vec3(20.0f);
+	_scene.addObject(dragon);
+
+	auto cube2 = std::make_shared<Object>(cubeMesh, redMat);
 	cube2->transform.translation = glm::vec3(0.0f, 0.0f, 5.0f);
 	_scene.addObject(cube2);
 
@@ -84,6 +103,7 @@ void Application::run()
 	// Update camera
 	_camera->updatePosition(_translateInput, Time::deltaTime());
 	_camera->updateRotation(_rotateInput);
+	_rotateInput = glm::vec3(0.0f);
 
 	// Render scene
 	_renderPipeline.render(_scene);
