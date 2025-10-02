@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-void checkCompileError(GLuint shader)
+void checkCompileError(const std::string& name, GLuint shader)
 {
 	GLint infoLogSize = 0;
 	glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &infoLogSize);
@@ -17,12 +17,12 @@ void checkCompileError(GLuint shader)
 		}
 
 		glGetShaderInfoLog(shader, infoLogSize, NULL, infoLog);
-		std::cerr << "ERROR::SHADER_COMPILATION_ERROR\n" << infoLog << std::endl;
+		std::cerr << "ERROR::SHADER_COMPILATION_ERROR: " << name << "\n" << infoLog << std::endl;
 		delete[] infoLog;
 	}
 }
 
-void checkLinkError(GLuint program)
+void checkLinkError(const std::string& name, GLuint program)
 {
 	GLint infoLogSize = 0;
 	glGetProgramiv(program, GL_INFO_LOG_LENGTH, &infoLogSize);
@@ -37,7 +37,7 @@ void checkLinkError(GLuint program)
 		}
 
 		glGetProgramInfoLog(program, infoLogSize, NULL, infoLog);
-		std::cerr << "ERROR::PROGRAM_LINKING_ERROR\n" << infoLog << std::endl;
+		std::cerr << "ERROR::PROGRAM_LINKING_ERROR: " << name << "\n" << infoLog << std::endl;
 		delete[] infoLog;
 	}
 }
@@ -47,26 +47,40 @@ Shader::~Shader()
 	glDeleteProgram(_pid);
 }
 
-void Shader::init(const char* vertSource, const char* fragSource)
+void Shader::init(const std::string& name, const char* vertSource, const char* fragSource, const char* geomSource)
 {
 	// Compile vertex shader
 	GLuint vertShader = glCreateShader(GL_VERTEX_SHADER);
 	glShaderSource(vertShader, 1, &vertSource, NULL);
 	glCompileShader(vertShader);
-	checkCompileError(vertShader);
+	checkCompileError(name, vertShader);
 
 	// Compile fragment shader
 	GLuint fragShader = glCreateShader(GL_FRAGMENT_SHADER);
 	glShaderSource(fragShader, 1, &fragSource, NULL);
 	glCompileShader(fragShader);
-	checkCompileError(fragShader);
+	checkCompileError(name, fragShader);
+
+	// Compile geometry shader if provided
+	GLuint geomShader = 0;
+	if (geomSource != nullptr)
+	{
+		geomShader = glCreateShader(GL_GEOMETRY_SHADER);
+		glShaderSource(geomShader, 1, &geomSource, NULL);
+		glCompileShader(geomShader);
+		checkCompileError(name, geomShader);
+	}
 
 	// Create the program and link
 	_pid = glCreateProgram();
 	glAttachShader(_pid, vertShader);
 	glAttachShader(_pid, fragShader);
+	if (geomShader != 0)
+	{
+		glAttachShader(_pid, geomShader);
+	}
 	glLinkProgram(_pid);
-	checkLinkError(_pid);
+	checkLinkError(name, _pid);
 
 	glDeleteShader(vertShader);
 	glDeleteShader(fragShader);

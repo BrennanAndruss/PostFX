@@ -2,6 +2,7 @@
 
 #include <glm/glm.hpp>
 #include <glad/glad.h>
+#include <string>
 
 class Shader
 {
@@ -9,7 +10,7 @@ public:
 	Shader() = default;
 	~Shader();
 
-	void init(const char* vertSource, const char* fragSource);
+	void init(const std::string& name, const char* vertSource, const char* fragSource, const char* geomSource);
 	GLuint getPid() const;
 
 	void bind() const;

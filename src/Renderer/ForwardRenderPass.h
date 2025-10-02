@@ -12,12 +12,8 @@ public:
 	void init() override;
 	void execute(const Scene& scene) override;
 
+	std::shared_ptr<Shader> outlineShader;
+
 private:
 	ResourceManager* _resourceManager = nullptr;
-
-	std::shared_ptr<Shader> _shader;
-	Mesh _mesh;
-
-	std::vector<float> _vertices;
-	GLuint _VAO, _VBO;
 };

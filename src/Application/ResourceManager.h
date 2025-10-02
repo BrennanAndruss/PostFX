@@ -19,10 +19,11 @@ public:
 
 	void setResourceDir(const std::string& resourceDir);
 
-	size_t loadShader(const std::string& name, const std::string& vertPath, const std::string& fragPath);
+	size_t loadShader(const std::string& name, const std::string& vertPath, 
+		const std::string& fragPath, const std::string& geomPath = "");
 	size_t loadTexture(const std::string& name, const std::string& texturePath, bool alpha);
 	size_t loadMesh(const std::string& name, const std::string& meshPath);
-	size_t loadMaterial(const std::string& name, const std::string& shaderName);
+	size_t loadMaterial(const std::string& name);
 
 	std::shared_ptr<Shader> getShader(size_t id) const;
 	std::shared_ptr<Shader> getShader(const std::string& name) const;

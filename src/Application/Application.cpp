@@ -27,12 +27,19 @@ void Application::init(int screenWidth, int screenHeight)
 
 	// Initialize OpenGL state
 	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_CULL_FACE);
 
 	// Initialize resources
 	_resourceManager = ResourceManager::getInstance();
 	_resourceManager->setResourceDir("../../../resources/");
-	_resourceManager->loadShader("simple", "shaders/simple.vert", "shaders/simple.frag");
+
+	size_t simpleID = _resourceManager->loadShader("simple", "shaders/simple.vert", "shaders/simple.frag");
+	std::shared_ptr<Shader> simpleShader = _resourceManager->getShader(simpleID);
 	_resourceManager->loadShader("texture", "shaders/texture.vert", "shaders/texture.frag");
+	_resourceManager->loadShader("cel", "shaders/cel.vert", "shaders/cel.frag");
+	_resourceManager->loadShader("outline", "shaders/outline.vert", "shaders/outline.frag");
+	size_t outlineID = _resourceManager->loadShader("normal", "shaders/normals.vert", "shaders/normals.frag", "shaders/normals.geom");
+	std::shared_ptr<Shader> outlineShader = _resourceManager->getShader(outlineID);
 
 	size_t texID = _resourceManager->loadTexture("texture", "textures/labonetex.jpg", false);
 
@@ -47,22 +54,35 @@ void Application::init(int screenWidth, int screenHeight)
 	std::shared_ptr<Mesh> dragonMesh = _resourceManager->getMesh(meshID);
 	std::cout << "Models loaded.\n";
 
-	size_t matID = _resourceManager->loadMaterial("redMat", "simple");
+	size_t matID = _resourceManager->loadMaterial("redMat");
 	std::shared_ptr<Material> redMat = _resourceManager->getMaterial(matID);
+	redMat->addShader(simpleShader);
 	redMat->ambient = glm::vec3(0.2f, 0.0f, 0.0f);
 	redMat->diffuse = glm::vec3(0.8f, 0.0f, 0.0f);
 	redMat->specular = glm::vec3(1.0f, 1.0f, 1.0f);
 	redMat->shininess = 32.0f;
 
-	matID = _resourceManager->loadMaterial("greenMat", "simple");
+	matID = _resourceManager->loadMaterial("greenCelMat");
 	std::shared_ptr<Material> greenMat = _resourceManager->getMaterial(matID);
+	greenMat->addShader(_resourceManager->getShader("cel"));
+	greenMat->addShader(_resourceManager->getShader("outline"));
 	greenMat->ambient = glm::vec3(0.0f, 0.2f, 0.0f);
 	greenMat->diffuse = glm::vec3(0.0f, 0.8f, 0.0f);
 	greenMat->specular = glm::vec3(1.0f, 1.0f, 1.0f);
 	greenMat->shininess = 32.0f;
 
-	matID = _resourceManager->loadMaterial("texture", "texture");
+	matID = _resourceManager->loadMaterial("blueNormalMat");
+	std::shared_ptr<Material> blueMat = _resourceManager->getMaterial(matID);
+	blueMat->addShader(simpleShader);
+	blueMat->addShader(_resourceManager->getShader("normal"));
+	blueMat->ambient = glm::vec3(0.0f, 0.0f, 0.2f);
+	blueMat->diffuse = glm::vec3(0.0f, 0.0f, 0.8f);
+	blueMat->specular = glm::vec3(1.0f, 1.0f, 1.0f);
+	blueMat->shininess = 32.0f;
+
+	matID = _resourceManager->loadMaterial("texture");
 	std::shared_ptr<Material> texMaterial = _resourceManager->getMaterial(matID);
+	texMaterial->addShader(_resourceManager->getShader("texture"));
 	texMaterial->texture = _resourceManager->getTexture("texture");
 
 	// Initialize the scene
@@ -70,7 +90,7 @@ void Application::init(int screenWidth, int screenHeight)
 	_camera = std::make_shared<Camera>(glm::vec3(-5.0f, 0.0f, 0.0f), aspect);
 	_scene.setCamera(_camera);
 
-	auto dirLight = std::make_shared<DirectionalLight>(glm::vec3(0.8f, -1.0f, 0.6f), glm::vec3(0.0f, 0.0f, 1.0f), 1.0f);
+	auto dirLight = std::make_shared<DirectionalLight>(glm::vec3(0.8f, -1.0f, 0.6f), glm::vec3(1.0f, 1.0f, 1.0f), 1.0f);
 	_scene.addLight(dirLight);
 
 	auto plane = std::make_shared<Object>(planeMesh, texMaterial);
@@ -82,7 +102,7 @@ void Application::init(int screenWidth, int screenHeight)
 	armadillo->transform.scale = glm::vec3(0.020f);
 	_scene.addObject(armadillo);
 
-	auto dragon = std::make_shared<Object>(dragonMesh, redMat);
+	auto dragon = std::make_shared<Object>(dragonMesh, blueMat);
 	dragon->transform.translation = glm::vec3(0.0f, 0.0f, -5.0f);
 	dragon->transform.scale = glm::vec3(20.0f);
 	_scene.addObject(dragon);
@@ -93,7 +113,10 @@ void Application::init(int screenWidth, int screenHeight)
 
 	// Initialize render pipeline
 	_renderPipeline.init(_scene, _fbWidth, _fbHeight);
-	_renderPipeline.addRenderPass(std::make_unique<ForwardRenderPass>());
+
+	auto forwardPass = std::make_unique<ForwardRenderPass>();
+	forwardPass->outlineShader = _resourceManager->getShader("outline");
+	_renderPipeline.addRenderPass(std::move(forwardPass));
 
 	glClearColor(0.5f, 0.5f, 0.5f, 1.0f);
 }

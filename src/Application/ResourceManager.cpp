@@ -44,13 +44,23 @@ void ResourceManager::setResourceDir(const std::string& resourceDir)
 	_resourceDir = resourceDir;
 }
 
-size_t ResourceManager::loadShader(const std::string& name, const std::string& vertPath, const std::string& fragPath)
+size_t ResourceManager::loadShader(const std::string& name, const std::string& vertPath,
+	const std::string& fragPath, const std::string& geomPath)
 {
 	std::string vertSource = readFile(_resourceDir + vertPath);
 	std::string fragSource = readFile(_resourceDir + fragPath);
-	
+
+	// Obtain geometry shader source if provided and keep pointer within function scope
+	std::string geomSourceStr;
+	const char* geomSource = nullptr;
+	if (!geomPath.empty())
+	{
+		geomSourceStr = readFile(_resourceDir + geomPath);
+		geomSource = geomSourceStr.c_str();
+	}
+
 	auto shader = std::make_shared<Shader>();
-	shader->init(vertSource.c_str(), fragSource.c_str());
+	shader->init(name, vertSource.c_str(), fragSource.c_str(), geomSource);
 	_shaders.push_back(shader);
 
 	size_t id = _shaders.size() - 1;
@@ -103,9 +113,9 @@ size_t ResourceManager::loadMesh(const std::string& name, const std::string& mes
 	}
 }
 
-size_t ResourceManager::loadMaterial(const std::string& name, const std::string& shaderName)
+size_t ResourceManager::loadMaterial(const std::string& name)
 {
-	auto material = std::make_shared<Material>(getShader(shaderName));
+	auto material = std::make_shared<Material>();
 	_materials.push_back(std::move(material));
 
 	size_t id = _materials.size() - 1;

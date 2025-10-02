@@ -8,7 +8,7 @@ in vec2 fragTexCoord;
 
 out vec4 fragColor;
 
-struct Light 
+struct Light
 {
 	vec4 color_intensity;	// rgb = color, a = intensity
 	vec4 position_range;	// xyz = position, w = range
@@ -33,11 +33,18 @@ uniform vec3 matDif;
 uniform vec3 matSpec;
 uniform float matShine;
 
+float stepBand(float x, float bands)
+{
+	return floor(x * bands) / bands;
+}
+
 void main()
 {
+	float bands = 4.0;
+
 	vec3 normal = normalize(fragNor);
 	vec3 view = normalize(cameraPos.xyz - fragPos);
-
+	
 	vec3 ambient = matAmb;
 	vec3 diffuseSum = vec3(0.0);
 	vec3 specularSum = vec3(0.0);
@@ -60,16 +67,22 @@ void main()
 			attenuation = 1.0 / (dist * dist);
 		}
 
-		// Diffuse
+		// Quantize diffuse per-light
 		float dC = max(dot(normal, lightDir), 0.0);
-		diffuseSum += matDif * dC * lightColor * attenuation;
+		float dQ = floor(dC * bands) / bands;
+		diffuseSum += matDif * dQ * lightColor * attenuation;
 
-		// Specular
+		// Threshold specular highlights
 		vec3 halfDir = normalize(lightDir + view);
-		float sC = max(dot(normal, halfDir), 0.0);
-		specularSum += matSpec * pow(sC, matShine) * lightColor * attenuation;
+		float sC = pow(max(dot(normal, halfDir), 0.0), matShine);
+		float sQ = step(0.5, sC);
+		specularSum += matSpec * sQ * lightColor * attenuation;
 	}
 
-	vec3 reflection = ambient + diffuseSum + specularSum;
+	// Rim lighting
+	float rim = pow(1.0 - max(dot(normal, view), 0.0), 2.0);
+	float rimQ = step(0.6, rim) * 0.25;
+
+	vec3 reflection = ambient + diffuseSum + specularSum + vec3(rimQ);
 	fragColor = vec4(reflection, 1.0);
 }

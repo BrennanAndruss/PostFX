@@ -1,9 +1,6 @@
 #include "Material.h"
 #include <iostream>
 
-Material::Material(std::shared_ptr<Shader> shader) 
-	: shader(shader), texture(nullptr), ambient(), diffuse(), specular(), shininess(32.0f) {}
-
 void Material::setUniforms(std::shared_ptr<Shader> shader) const
 {
 	shader->setVec3("matAmb", ambient);

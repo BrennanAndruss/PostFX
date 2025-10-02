@@ -4,7 +4,6 @@
 void ForwardRenderPass::init()
 {
 	_resourceManager = ResourceManager::getInstance();
-	_shader = _resourceManager->getShader("simple");
 }
 
 void ForwardRenderPass::execute(const Scene& scene)
@@ -14,16 +13,28 @@ void ForwardRenderPass::execute(const Scene& scene)
 
 	for (auto object : objects)
 	{
-		std::shared_ptr<Shader> objShader = object->material->shader;
-		objShader->bind();
+		for (auto& shader : object->material->shaders)
+		{
+			if (shader == outlineShader)
+			{
+				glCullFace(GL_FRONT);
+			}
 
-		object->material->setUniforms(objShader);
-		objShader->setMat4("model", object->transform.getCompositeTransform());
-		objShader->setInt("numLights", numLights);
-		object->material->bindTexture(objShader);
+			shader->bind();
 
-		object->draw();
+			object->material->setUniforms(shader);
+			shader->setMat4("model", object->transform.getCompositeTransform());
+			shader->setInt("numLights", numLights);
+			object->material->bindTexture(shader);
 
-		objShader->unbind();
+			object->draw();
+
+			shader->unbind();
+
+			if (shader == outlineShader)
+			{
+				glCullFace(GL_BACK);
+			}
+		}
 	}
 }
